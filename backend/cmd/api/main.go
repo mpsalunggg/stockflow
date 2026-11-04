@@ -12,6 +12,9 @@ import (
 
 	"github.com/mpsalunggg/stockflow/backend/internal/config"
 	"github.com/mpsalunggg/stockflow/backend/internal/database"
+	"github.com/mpsalunggg/stockflow/backend/internal/order"
+	"github.com/mpsalunggg/stockflow/backend/internal/product"
+	"github.com/mpsalunggg/stockflow/backend/internal/stock"
 )
 
 func main() {
@@ -49,6 +52,10 @@ func run() error {
 		}
 		w.Write([]byte("ok"))
 	})
+
+	product.NewHandler().RegisterRoutes(mux)
+	stock.NewHandler().RegisterRoutes(mux)
+	order.NewHandler().RegisterRoutes(mux)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
