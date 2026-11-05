@@ -53,7 +53,7 @@ func run() error {
 		w.Write([]byte("ok"))
 	})
 
-	product.NewHandler().RegisterRoutes(mux)
+	product.NewHandler(product.NewService(product.NewRepository(pool))).RegisterRoutes(mux)
 	stock.NewHandler().RegisterRoutes(mux)
 	order.NewHandler().RegisterRoutes(mux)
 
