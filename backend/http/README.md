@@ -25,6 +25,7 @@ Every error uses the same envelope:
 | Method | Path | Response |
 |---|---|---|
 | GET | `/products?search=&status=&page=&limit=` | 200 `{data, page, limit, total}`. Search matches SKU or name, case-insensitive. `status` is `active`, `inactive` or `low` (stock ≤ 10). Each product has `last_movement_at` (ISO string or null). |
+| GET | `/products/summary` | 200 `{total_products, active_products, stock_value, low_stock_count}`. Low stock is stock ≤ 10. |
 | GET | `/products/{id}` | 200 product, 404 if missing |
 | POST | `/products` | 201 product. Body `{"sku","name","price","is_active"?}`. Stock starts at 0. |
 | PUT | `/products/{id}` | 200 product. Body `{"sku","name","price","is_active"}`. 404 if missing. |
@@ -64,4 +65,4 @@ curl localhost:8080/api/orders/1
 curl -X POST localhost:8080/api/orders/1/cancel
 ```
 
-`GET /products/{id}` and `GET /orders` are additions beyond the original brief.
+`GET /products/summary`, `GET /products/{id}` and `GET /orders` are additions beyond the original brief.

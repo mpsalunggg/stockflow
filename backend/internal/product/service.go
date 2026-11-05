@@ -18,6 +18,10 @@ func (s *Service) List(ctx context.Context, params ListParams) (ListResult, erro
 	return ListResult{Data: products, Page: params.Page, Limit: params.Limit, Total: total}, nil
 }
 
+func (s *Service) Summary(ctx context.Context) (Summary, error) {
+	return s.repo.Summary(ctx)
+}
+
 func (s *Service) Get(ctx context.Context, id int) (Product, error) {
 	return s.repo.get(ctx, id)
 }

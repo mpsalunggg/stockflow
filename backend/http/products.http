@@ -21,6 +21,9 @@ GET {{baseUrl}}/products?status=x
 ### List products, invalid limit (400)
 GET {{baseUrl}}/products?limit=abc
 
+### Product summary (200)
+GET {{baseUrl}}/products/summary
+
 ### Get product (200)
 GET {{baseUrl}}/products/1
 

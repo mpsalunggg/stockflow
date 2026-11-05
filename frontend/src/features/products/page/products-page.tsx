@@ -30,6 +30,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTableParams } from "@/hooks/use-table-params";
 import { DeleteProductDialog } from "../components/delete-product-dialog";
 import { ProductFormDialog } from "../components/product-form-dialog";
+import { ProductSummaryCards } from "../components/product-summary-cards";
 import { ProductTable } from "../components/product-table";
 import { useProducts } from "../hooks";
 import { productStatusFilters, type Product, type ProductStatusFilter } from "../schemas";
@@ -91,6 +92,8 @@ export function ProductsPage() {
           </Button>
         }
       />
+
+      <ProductSummaryCards />
 
       <Card className="gap-0 py-0">
         <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3">

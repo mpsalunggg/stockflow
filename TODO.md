@@ -16,7 +16,7 @@
 - [ ] Vitest for schemas and formatting helpers
 - [x] Products page: status column
 - [x] Products page: All / Active / Inactive / Low stock filter
-- [ ] Summary cards: total products, active products, stock value, low stock count
+- [x] Summary cards: total products, active products, stock value, low stock count
 - [ ] README: design decisions, improvements, hours spent
 - [ ] Remove unused types `ProductList`, `OrderList`, `AdjustResult`
 - [ ] Set `"strict": true` explicitly in `tsconfig.app.json`

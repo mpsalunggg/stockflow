@@ -28,7 +28,15 @@ export const productFormSchema = z.object({
   is_active: z.boolean(),
 });
 
+export const productSummarySchema = z.object({
+  total_products: z.number(),
+  active_products: z.number(),
+  stock_value: z.number(),
+  low_stock_count: z.number(),
+});
+
 export type Product = z.infer<typeof productSchema>;
+export type ProductSummary = z.infer<typeof productSummarySchema>;
 export type ProductList = z.infer<typeof productListSchema>;
 export type ProductForm = z.infer<typeof productFormSchema>;
 

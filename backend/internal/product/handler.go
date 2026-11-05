@@ -18,6 +18,7 @@ func NewHandler(svc *Service) *Handler {
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/products", h.list)
 	mux.HandleFunc("POST /api/products", h.create)
+	mux.HandleFunc("GET /api/products/summary", h.summary)
 	mux.HandleFunc("GET /api/products/{id}", h.get)
 	mux.HandleFunc("PUT /api/products/{id}", h.update)
 	mux.HandleFunc("DELETE /api/products/{id}", h.delete)
@@ -30,6 +31,15 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := h.svc.List(r.Context(), params)
+	if err != nil {
+		response.Error(w, err)
+		return
+	}
+	response.JSON(w, http.StatusOK, result)
+}
+
+func (h *Handler) summary(w http.ResponseWriter, r *http.Request) {
+	result, err := h.svc.Summary(r.Context())
 	if err != nil {
 		response.Error(w, err)
 		return

@@ -4,14 +4,26 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { createProduct, deleteProduct, getProduct, listProducts, updateProduct } from "./api";
+import {
+  createProduct,
+  deleteProduct,
+  getProduct,
+  getProductSummary,
+  listProducts,
+  updateProduct,
+} from "./api";
 import type { ProductForm, ProductListParams } from "./schemas";
 
 export const productKeys = {
   all: ["products"] as const,
   list: (params: ProductListParams) => ["products", "list", params] as const,
   detail: (id: number) => ["products", "detail", id] as const,
+  summary: ["products", "summary"] as const,
 };
+
+export function useProductSummary() {
+  return useQuery({ queryKey: productKeys.summary, queryFn: getProductSummary });
+}
 
 export function useProduct(id: number | undefined) {
   return useQuery({

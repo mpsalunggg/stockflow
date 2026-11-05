@@ -108,6 +108,22 @@ func (r *Repository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
+func (r *Repository) Summary(ctx context.Context) (Summary, error) {
+	var s Summary
+	err := r.pool.QueryRow(ctx, `
+		SELECT count(*),
+			count(*) FILTER (WHERE is_active),
+			COALESCE(sum(price::bigint * stock), 0),
+			count(*) FILTER (WHERE stock <= $1)
+		FROM products`,
+		lowStockThreshold,
+	).Scan(&s.TotalProducts, &s.ActiveProducts, &s.StockValue, &s.LowStockCount)
+	if err != nil {
+		return Summary{}, fmt.Errorf("product summary: %w", err)
+	}
+	return s, nil
+}
+
 func (r *Repository) get(ctx context.Context, id int) (Product, error) {
 	rows, err := r.pool.Query(ctx, selectProduct+" WHERE p.id = $1", id)
 	if err != nil {
