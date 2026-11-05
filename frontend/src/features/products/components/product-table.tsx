@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -12,6 +11,7 @@ import { formatRupiah, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Product } from "../schemas";
 import { ProductRowActions } from "./product-row-actions";
+import { ProductStatusBadge } from "./product-status-badge";
 import { StockCell } from "./stock-cell";
 
 type ProductTableProps = {
@@ -41,6 +41,7 @@ export function ProductTable({
           <TableHead>Product Name</TableHead>
           <TableHead className="text-right">Price</TableHead>
           <TableHead className="w-44 text-right">Stock</TableHead>
+          <TableHead>Status</TableHead>
           <TableHead>Last Movement</TableHead>
           <TableHead className="w-12 pr-4">
             <span className="sr-only">Actions</span>
@@ -64,6 +65,9 @@ export function ProductTable({
                 <Skeleton className="ml-auto h-3 w-16" />
               </TableCell>
               <TableCell>
+                <Skeleton className="h-5 w-14" />
+              </TableCell>
+              <TableCell>
                 <Skeleton className="h-3 w-20" />
               </TableCell>
               <TableCell className="pr-4">
@@ -78,17 +82,15 @@ export function ProductTable({
                 {product.sku}
               </span>
             </TableCell>
-            <TableCell className="font-medium">
-              <span className="inline-flex items-center gap-2">
-                {product.name}
-                {!product.is_active && <Badge variant="secondary">Inactive</Badge>}
-              </span>
-            </TableCell>
+            <TableCell className="font-medium">{product.name}</TableCell>
             <TableCell className="text-right tabular-nums">
               {formatRupiah(product.price)}
             </TableCell>
             <TableCell className="text-right tabular-nums">
               <StockCell stock={product.stock} />
+            </TableCell>
+            <TableCell>
+              <ProductStatusBadge active={product.is_active} />
             </TableCell>
             <TableCell className="text-muted-foreground">
               {product.last_movement_at ? (

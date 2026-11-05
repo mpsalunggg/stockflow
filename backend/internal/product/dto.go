@@ -42,8 +42,16 @@ func (in ProductInput) validate(requireIsActive bool) error {
 	return nil
 }
 
+const (
+	statusActive      = "active"
+	statusInactive    = "inactive"
+	statusLow         = "low"
+	lowStockThreshold = 10
+)
+
 type ListParams struct {
 	Search string
+	Status string
 	request.Pagination
 }
 
@@ -58,7 +66,13 @@ func parseListParams(q url.Values) (ListParams, error) {
 	details := map[string]string{}
 	params := ListParams{
 		Search:     strings.TrimSpace(q.Get("search")),
+		Status:     strings.TrimSpace(q.Get("status")),
 		Pagination: request.ParsePagination(q, details),
+	}
+	switch params.Status {
+	case "", statusActive, statusInactive, statusLow:
+	default:
+		details["status"] = "must be one of: active, inactive, low"
 	}
 	if len(details) > 0 {
 		return ListParams{}, apperrors.Validation(details)

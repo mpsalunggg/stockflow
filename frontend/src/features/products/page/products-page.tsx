@@ -18,6 +18,13 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AdjustStockDialog } from "@/features/stock/components/adjust-stock-dialog";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTableParams } from "@/hooks/use-table-params";
@@ -25,7 +32,18 @@ import { DeleteProductDialog } from "../components/delete-product-dialog";
 import { ProductFormDialog } from "../components/product-form-dialog";
 import { ProductTable } from "../components/product-table";
 import { useProducts } from "../hooks";
-import type { Product } from "../schemas";
+import { productStatusFilters, type Product, type ProductStatusFilter } from "../schemas";
+
+const statusOptions = [
+  { value: "all", label: "All products" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+  { value: "low", label: "Low stock (≤ 10)" },
+];
+
+function toStatus(value: string) {
+  return productStatusFilters.find((status) => status === value) as ProductStatusFilter | undefined;
+}
 
 type DialogState =
   | { type: "form"; product?: Product }
@@ -34,16 +52,19 @@ type DialogState =
   | null;
 
 export function ProductsPage() {
-  const { page, limit, search, setPage, setLimit, setSearch } = useTableParams();
+  const { page, limit, search, setPage, setLimit, setSearch, getFilter, setFilter, update } =
+    useTableParams();
+  const status = toStatus(getFilter("status"));
   const [dialog, setDialog] = useState<DialogState>(null);
 
   const debouncedSearch = useDebouncedValue(search.trim());
   const { data, isPending, isError, error, isPlaceholderData, refetch } =
-    useProducts({ search: debouncedSearch, page, limit });
+    useProducts({ search: debouncedSearch, status, page, limit });
 
   const products = data?.data;
   const total = data?.total ?? 0;
   const isEmpty = data !== undefined && total === 0;
+  const hasFilter = Boolean(debouncedSearch || status);
   const isOutOfRange = products?.length === 0 && total > 0 && page > 1;
 
   useEffect(() => {
@@ -96,6 +117,22 @@ export function ProductsPage() {
               </InputGroupAddon>
             )}
           </InputGroup>
+          <Select
+            items={statusOptions}
+            value={status ?? "all"}
+            onValueChange={(value) => setFilter("status", value === "all" ? undefined : value ?? undefined)}
+          >
+            <SelectTrigger aria-label="Filter products" className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {data && (
             <span aria-live="polite" className="ml-auto text-sm text-muted-foreground">
               {total} {total === 1 ? "product" : "products"}
@@ -131,7 +168,7 @@ export function ProductsPage() {
         )}
 
         {isEmpty &&
-          (debouncedSearch ? (
+          (hasFilter ? (
             <Empty className="py-14">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -139,12 +176,15 @@ export function ProductsPage() {
                 </EmptyMedia>
                 <EmptyTitle>No products found</EmptyTitle>
                 <EmptyDescription>
-                  No SKU or product name matches “{debouncedSearch}”.
+                  No product matches the current search or filter.
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <Button variant="outline" onClick={() => setSearch("")}>
-                  Clear search
+                <Button
+                  variant="outline"
+                  onClick={() => update({ search: undefined, status: undefined })}
+                >
+                  Clear search and filter
                 </Button>
               </EmptyContent>
             </Empty>

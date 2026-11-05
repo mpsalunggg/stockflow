@@ -32,8 +32,12 @@ export type Product = z.infer<typeof productSchema>;
 export type ProductList = z.infer<typeof productListSchema>;
 export type ProductForm = z.infer<typeof productFormSchema>;
 
+export const productStatusFilters = ["active", "inactive", "low"] as const;
+export type ProductStatusFilter = (typeof productStatusFilters)[number];
+
 export type ProductListParams = {
   search?: string;
+  status?: ProductStatusFilter;
   page: number;
   limit: number;
 };

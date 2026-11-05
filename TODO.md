@@ -14,8 +14,8 @@
 - [x] README with run steps
 - [ ] Go tests: overdraw writes nothing, happy path, `go test -race` concurrency
 - [ ] Vitest for schemas and formatting helpers
-- [ ] Products page: status column
-- [ ] Products page: All / Active / Inactive / Low stock filter
+- [x] Products page: status column
+- [x] Products page: All / Active / Inactive / Low stock filter
 - [ ] Summary cards: total products, active products, stock value, low stock count
 - [ ] README: design decisions, improvements, hours spent
 - [ ] Remove unused types `ProductList`, `OrderList`, `AdjustResult`

@@ -24,7 +24,7 @@ Every error uses the same envelope:
 
 | Method | Path | Response |
 |---|---|---|
-| GET | `/products?search=&page=&limit=` | 200 `{data, page, limit, total}`. Search matches SKU or name, case-insensitive. Each product has `last_movement_at` (ISO string or null). |
+| GET | `/products?search=&status=&page=&limit=` | 200 `{data, page, limit, total}`. Search matches SKU or name, case-insensitive. `status` is `active`, `inactive` or `low` (stock ≤ 10). Each product has `last_movement_at` (ISO string or null). |
 | GET | `/products/{id}` | 200 product, 404 if missing |
 | POST | `/products` | 201 product. Body `{"sku","name","price","is_active"?}`. Stock starts at 0. |
 | PUT | `/products/{id}` | 200 product. Body `{"sku","name","price","is_active"}`. 404 if missing. |

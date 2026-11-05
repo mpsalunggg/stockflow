@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -28,11 +29,24 @@ func NewRepository(pool *pgxpool.Pool) *Repository {
 }
 
 func (r *Repository) List(ctx context.Context, params ListParams) ([]Product, int, error) {
-	where := ""
-	args := []any{}
+	var conditions []string
+	var args []any
 	if params.Search != "" {
-		where = " WHERE p.sku ILIKE $1 OR p.name ILIKE $1"
 		args = append(args, database.LikePattern(params.Search))
+		conditions = append(conditions, fmt.Sprintf("(p.sku ILIKE $%[1]d OR p.name ILIKE $%[1]d)", len(args)))
+	}
+	switch params.Status {
+	case statusActive:
+		conditions = append(conditions, "p.is_active")
+	case statusInactive:
+		conditions = append(conditions, "NOT p.is_active")
+	case statusLow:
+		args = append(args, lowStockThreshold)
+		conditions = append(conditions, fmt.Sprintf("p.stock <= $%d", len(args)))
+	}
+	where := ""
+	if len(conditions) > 0 {
+		where = " WHERE " + strings.Join(conditions, " AND ")
 	}
 
 	var total int

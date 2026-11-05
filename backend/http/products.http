@@ -9,6 +9,15 @@ GET {{baseUrl}}/products?search=beras&page=1&limit=5
 ### List products, page beyond last
 GET {{baseUrl}}/products?page=99&limit=5
 
+### List products, low stock (stock <= 10)
+GET {{baseUrl}}/products?status=low
+
+### List products, inactive only
+GET {{baseUrl}}/products?status=inactive
+
+### List products, invalid status (400)
+GET {{baseUrl}}/products?status=x
+
 ### List products, invalid limit (400)
 GET {{baseUrl}}/products?limit=abc
 
