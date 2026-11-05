@@ -18,6 +18,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { AdjustStockDialog } from "@/features/stock/components/adjust-stock-dialog";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTableParams } from "@/hooks/use-table-params";
 import { DeleteProductDialog } from "../components/delete-product-dialog";
@@ -29,6 +30,7 @@ import type { Product } from "../schemas";
 type DialogState =
   | { type: "form"; product?: Product }
   | { type: "delete"; product: Product }
+  | { type: "adjust"; product: Product }
   | null;
 
 export function ProductsPage() {
@@ -123,6 +125,7 @@ export function ProductsPage() {
             loading={isPending}
             stale={isPlaceholderData}
             onEdit={(product) => setDialog({ type: "form", product })}
+            onAdjust={(product) => setDialog({ type: "adjust", product })}
             onDelete={(product) => setDialog({ type: "delete", product })}
           />
         )}
@@ -178,6 +181,9 @@ export function ProductsPage() {
 
       {dialog?.type === "form" && (
         <ProductFormDialog product={dialog.product} onClose={closeDialog} />
+      )}
+      {dialog?.type === "adjust" && (
+        <AdjustStockDialog product={dialog.product} onClose={closeDialog} />
       )}
       {dialog?.type === "delete" && (
         <DeleteProductDialog

@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Info } from "lucide-react";
-import { Controller, useForm, type UseFormSetError } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,35 +33,6 @@ import { formatNumber } from "@/lib/format";
 import { useCreateProduct, useUpdateProduct } from "../hooks";
 import { productFormSchema, type Product, type ProductForm } from "../schemas";
 
-const fieldLabels: Record<keyof ProductForm, string> = {
-  sku: "SKU",
-  name: "Product name",
-  price: "Price",
-  is_active: "Status",
-};
-
-function applyServerErrors(error: Error, setError: UseFormSetError<ProductForm>) {
-  if (!(error instanceof ApiError)) return false;
-
-  if (error.code === "SKU_EXISTS") {
-    setError("sku", { message: "SKU already exists. Use a different one." });
-    return true;
-  }
-
-  if (error.code === "VALIDATION_ERROR") {
-    const details = (error.fields.details ?? {}) as Record<string, string>;
-    for (const [key, message] of Object.entries(details)) {
-      if (key in fieldLabels) {
-        const field = key as keyof ProductForm;
-        setError(field, { message: `${fieldLabels[field]} ${message}.` });
-      }
-    }
-    return true;
-  }
-
-  return false;
-}
-
 type ProductFormDialogProps = {
   product?: Product;
   onClose: () => void;
@@ -84,7 +55,10 @@ export function ProductFormDialog({ product, onClose }: ProductFormDialogProps) 
   });
 
   const handleError = (error: Error) => {
-    if (applyServerErrors(error, form.setError)) return;
+    if (error instanceof ApiError && error.code === "SKU_EXISTS") {
+      form.setError("sku", { message: "SKU already exists. Use a different one." });
+      return;
+    }
     if (error instanceof ApiError && error.status === 404) {
       toast.error("Product not found. It may have been deleted, so your changes weren't saved.");
       onClose();

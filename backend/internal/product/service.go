@@ -18,6 +18,10 @@ func (s *Service) List(ctx context.Context, params ListParams) (ListResult, erro
 	return ListResult{Data: products, Page: params.Page, Limit: params.Limit, Total: total}, nil
 }
 
+func (s *Service) Get(ctx context.Context, id int) (Product, error) {
+	return s.repo.get(ctx, id)
+}
+
 func (s *Service) Create(ctx context.Context, in ProductInput) (Product, error) {
 	in.normalize()
 	if err := in.validate(false); err != nil {

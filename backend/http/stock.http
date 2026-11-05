@@ -1,0 +1,74 @@
+@baseUrl = http://localhost:8080/api
+@productId = 2
+
+### Stock in (201)
+POST {{baseUrl}}/products/{{productId}}/stock
+Content-Type: application/json
+
+{
+  "type": "in",
+  "qty": 10,
+  "note": "Supplier delivery PO-2026-311"
+}
+
+### Stock out (201)
+POST {{baseUrl}}/products/{{productId}}/stock
+Content-Type: application/json
+
+{
+  "type": "out",
+  "qty": 3,
+  "note": "Display units"
+}
+
+### Stock out, overdraw (409 INSUFFICIENT_STOCK)
+POST {{baseUrl}}/products/{{productId}}/stock
+Content-Type: application/json
+
+{
+  "type": "out",
+  "qty": 999999
+}
+
+### Stock adjust, qty 0 (400)
+POST {{baseUrl}}/products/{{productId}}/stock
+Content-Type: application/json
+
+{
+  "type": "out",
+  "qty": 0
+}
+
+### Stock adjust, invalid type (400)
+POST {{baseUrl}}/products/{{productId}}/stock
+Content-Type: application/json
+
+{
+  "type": "transfer",
+  "qty": 1
+}
+
+### Stock adjust, unknown field (400)
+POST {{baseUrl}}/products/{{productId}}/stock
+Content-Type: application/json
+
+{
+  "type": "in",
+  "qty": 1,
+  "price": 1000
+}
+
+### Stock adjust, product not found (404)
+POST {{baseUrl}}/products/9999/stock
+Content-Type: application/json
+
+{
+  "type": "in",
+  "qty": 1
+}
+
+### Movements, newest first (200)
+GET {{baseUrl}}/products/{{productId}}/movements
+
+### Movements, product not found (404)
+GET {{baseUrl}}/products/9999/movements

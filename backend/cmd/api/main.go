@@ -54,7 +54,7 @@ func run() error {
 	})
 
 	product.NewHandler(product.NewService(product.NewRepository(pool))).RegisterRoutes(mux)
-	stock.NewHandler().RegisterRoutes(mux)
+	stock.NewHandler(stock.NewService(stock.NewRepository(pool))).RegisterRoutes(mux)
 	order.NewHandler().RegisterRoutes(mux)
 
 	srv := &http.Server{

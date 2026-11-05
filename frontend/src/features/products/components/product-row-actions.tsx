@@ -1,4 +1,4 @@
-import { History, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpDown, History, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +13,14 @@ import type { Product } from "../schemas";
 type ProductRowActionsProps = {
   product: Product;
   onEdit: (product: Product) => void;
+  onAdjust: (product: Product) => void;
   onDelete: (product: Product) => void;
 };
 
 export function ProductRowActions({
   product,
   onEdit,
+  onAdjust,
   onDelete,
 }: ProductRowActionsProps) {
   return (
@@ -38,6 +40,10 @@ export function ProductRowActions({
         <DropdownMenuItem onClick={() => onEdit(product)}>
           <Pencil />
           Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onAdjust(product)}>
+          <ArrowUpDown />
+          Adjust Stock
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link to={`/stock?product=${product.id}`} />}>
           <History />

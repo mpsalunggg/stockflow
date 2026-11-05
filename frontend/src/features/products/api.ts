@@ -7,6 +7,10 @@ export function listProducts({ search, page, limit }: ProductListParams) {
   return request(`/products?${query}`, undefined, productListSchema)
 }
 
+export function getProduct(id: number) {
+  return request(`/products/${id}`, undefined, productSchema)
+}
+
 export function createProduct(input: ProductForm) {
   return request('/products', { method: 'POST', body: JSON.stringify(input) }, productSchema)
 }

@@ -12,6 +12,12 @@ GET {{baseUrl}}/products?page=99&limit=5
 ### List products, invalid limit (400)
 GET {{baseUrl}}/products?limit=abc
 
+### Get product (200)
+GET {{baseUrl}}/products/1
+
+### Get product, not found (404)
+GET {{baseUrl}}/products/9999
+
 ### Create product (201)
 # @name createProduct
 POST {{baseUrl}}/products

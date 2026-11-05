@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/format";
-
-const lowStockThreshold = 10;
+import { LOW_STOCK_THRESHOLD } from "../constants";
 
 export function StockCell({ stock }: { stock: number }) {
   if (stock === 0) {
@@ -13,7 +12,7 @@ export function StockCell({ stock }: { stock: number }) {
     );
   }
 
-  if (stock <= lowStockThreshold) {
+  if (stock <= LOW_STOCK_THRESHOLD) {
     return (
       <span className="inline-flex items-center gap-2">
         <Badge className="bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400">

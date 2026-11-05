@@ -19,6 +19,7 @@ type ProductTableProps = {
   loading: boolean;
   stale: boolean;
   onEdit: (product: Product) => void;
+  onAdjust: (product: Product) => void;
   onDelete: (product: Product) => void;
 };
 
@@ -29,6 +30,7 @@ export function ProductTable({
   loading,
   stale,
   onEdit,
+  onAdjust,
   onDelete,
 }: ProductTableProps) {
   return (
@@ -99,6 +101,7 @@ export function ProductTable({
               <ProductRowActions
                 product={product}
                 onEdit={onEdit}
+                onAdjust={onAdjust}
                 onDelete={onDelete}
               />
             </TableCell>
