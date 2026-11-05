@@ -42,6 +42,11 @@ func run() error {
 	if err := database.Migrate(pool); err != nil {
 		return err
 	}
+	if cfg.Seed {
+		if err := database.Seed(pool); err != nil {
+			return err
+		}
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {

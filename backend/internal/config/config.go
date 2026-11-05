@@ -8,12 +8,14 @@ import (
 type Config struct {
 	DatabaseURL string
 	Port        string
+	Seed        bool
 }
 
 func Load() (Config, error) {
 	cfg := Config{
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		Port:        os.Getenv("PORT"),
+		Seed:        os.Getenv("DB_SEED") == "true",
 	}
 	if cfg.DatabaseURL == "" {
 		return Config{}, errors.New("DATABASE_URL is required")

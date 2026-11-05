@@ -1,0 +1,5 @@
+http
+.env
+.env.*
+Dockerfile
+.dockerignore

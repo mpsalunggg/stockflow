@@ -2,7 +2,13 @@ export DATABASE_URL ?= postgres://stockflow:stockflow_secret@localhost:5432/stoc
 
 GOOSE := go run github.com/pressly/goose/v3/cmd/goose@v3.29.0
 
-.PHONY: db-up db-reset migrate seed run test
+.PHONY: up down db-up db-reset migrate seed run test
+
+up:
+	docker compose up --build -d --wait
+
+down:
+	docker compose down
 
 db-up:
 	docker compose up -d --wait postgres
