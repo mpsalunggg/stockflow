@@ -37,6 +37,7 @@ export function CreateOrderPage() {
   const createOrder = useCreateOrder();
   const saving = createOrder.isPending;
   const [insufficient, setInsufficient] = useState<Insufficient | null>(null);
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
 
   const form = useForm<CreateOrderForm>({
     resolver: zodResolver(createOrderFormSchema),
@@ -83,8 +84,11 @@ export function CreateOrderPage() {
     setInsufficient(null);
     createOrder.mutate(
       {
-        customer: values.customer,
-        items: values.items.map((item) => ({ sku: item.product!.sku, qty: item.qty })),
+        idempotencyKey,
+        input: {
+          customer: values.customer,
+          items: values.items.map((item) => ({ sku: item.product!.sku, qty: item.qty })),
+        },
       },
       {
         onSuccess: (order) => {

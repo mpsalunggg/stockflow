@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { productKeys } from "@/features/products/hooks";
 import { cancelOrder, createOrder, getOrder, listOrders } from "./api";
-import type { OrderListParams } from "./schemas";
+import type { CreateOrderInput, OrderListParams } from "./schemas";
 
 export const orderKeys = {
   all: ["orders"] as const,
@@ -43,7 +43,11 @@ function useInvalidateStock() {
 
 export function useCreateOrder() {
   const onSettled = useInvalidateStock();
-  return useMutation({ mutationFn: createOrder, onSettled });
+  return useMutation({
+    mutationFn: ({ input, idempotencyKey }: { input: CreateOrderInput; idempotencyKey: string }) =>
+      createOrder(input, idempotencyKey),
+    onSettled,
+  });
 }
 
 export function useCancelOrder() {

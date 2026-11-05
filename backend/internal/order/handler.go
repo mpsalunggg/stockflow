@@ -2,6 +2,7 @@ package order
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/mpsalunggg/stockflow/backend/internal/shared/request"
 	"github.com/mpsalunggg/stockflow/backend/internal/shared/response"
@@ -42,10 +43,14 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 		response.Error(w, err)
 		return
 	}
-	order, err := h.svc.Create(r.Context(), in)
+	key := strings.TrimSpace(r.Header.Get("Idempotency-Key"))
+	order, replayed, err := h.svc.Create(r.Context(), in, key)
 	if err != nil {
 		response.Error(w, err)
 		return
+	}
+	if replayed {
+		w.Header().Set("Idempotent-Replayed", "true")
 	}
 	response.JSON(w, http.StatusCreated, order)
 }

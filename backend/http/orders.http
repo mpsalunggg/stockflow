@@ -22,6 +22,36 @@ Content-Type: application/json
   ]
 }
 
+### Create order with Idempotency-Key (201)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+Idempotency-Key: demo-key-001
+
+{
+  "customer": "Toko Maju Jaya",
+  "items": [{ "sku": "GLA-PSR-1KG", "qty": 1 }]
+}
+
+### Same key and body again (201, same order, Idempotent-Replayed: true)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+Idempotency-Key: demo-key-001
+
+{
+  "customer": "Toko Maju Jaya",
+  "items": [{ "sku": "GLA-PSR-1KG", "qty": 1 }]
+}
+
+### Same key, different body (409 IDEMPOTENCY_KEY_REUSED)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+Idempotency-Key: demo-key-001
+
+{
+  "customer": "Toko Maju Jaya",
+  "items": [{ "sku": "GLA-PSR-1KG", "qty": 5 }]
+}
+
 ### Create order, insufficient stock (409 INSUFFICIENT_STOCK)
 POST {{baseUrl}}/orders
 Content-Type: application/json

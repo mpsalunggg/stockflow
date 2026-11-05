@@ -17,8 +17,16 @@ export function getOrder(id: number) {
   return request(`/orders/${id}`, undefined, orderSchema);
 }
 
-export function createOrder(input: CreateOrderInput) {
-  return request("/orders", { method: "POST", body: JSON.stringify(input) }, orderSchema);
+export function createOrder(input: CreateOrderInput, idempotencyKey: string) {
+  return request(
+    "/orders",
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+      headers: { "Idempotency-Key": idempotencyKey },
+    },
+    orderSchema,
+  );
 }
 
 export function cancelOrder(id: number) {

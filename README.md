@@ -34,6 +34,7 @@ The API contract and curl examples are in [backend/http/README.md](backend/http/
 - Stock is decremented with `UPDATE ... SET stock = stock - $2 WHERE ... AND stock >= $2`. Postgres locks the row, so a concurrent request re-checks against the committed value and gets 409 when there is not enough left. Stock adjustments use the same guard, and `CHECK (stock >= 0)` stays in the schema as a backstop.
 - Creating an order validates the input first (customer, items, qty, duplicate, unknown or inactive SKUs), then runs in one transaction. Items are locked in SKU order to avoid deadlocks, unit prices come from the database, and if any item fails nothing is written.
 - Cancel uses `WHERE status = 'CREATED'`, so stock is restored only once even when the request is repeated.
+- `POST /orders` accepts an `Idempotency-Key` header. The key is claimed with `INSERT ... ON CONFLICT DO NOTHING` inside the order transaction, so a retry or a parallel duplicate waits for the first request and gets the same order back. A failed request rolls back its key, so it can be retried. The Create Order page sends one key per form. Keys do not expire yet.
 - `last_movement_at` is read from `stock_movements` with a lateral `max(created_at)`, so there is no copy on the product row to keep in sync.
 - Every stock change writes a movement in the same transaction. Orders and cancels write one too ("Order #12", "Cancel order #12").
 - Stock cannot be set through `POST` or `PUT /products`. A product with movements or order lines cannot be deleted and returns 409 `PRODUCT_HAS_HISTORY`.
@@ -46,7 +47,6 @@ The API contract and curl examples are in [backend/http/README.md](backend/http/
 ## What I would improve
 
 - Automated tests. Everything so far was checked by hand: curl and the `.http` files, parallel requests for the concurrency cases, and the UI flows in a headless browser. Next would be Go integration tests (overdraw writes nothing, happy path, `go test -race`) and Vitest for the schemas and formatting helpers.
-- `Idempotency-Key` on `POST /api/orders`, so a retried request cannot create a second order.
 - The daily sales report.
 - Paging for movement history.
 - Authentication, and recording who made each change.

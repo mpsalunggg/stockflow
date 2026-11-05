@@ -1,6 +1,9 @@
 package order
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"net/url"
 	"strconv"
 	"strings"
@@ -57,6 +60,23 @@ func (in CreateInput) validate() error {
 		return apperrors.Validation(details)
 	}
 	return nil
+}
+
+const maxIdempotencyKeyLength = 255
+
+func validateIdempotencyKey(key string) error {
+	if len(key) > maxIdempotencyKeyLength {
+		return apperrors.Validation(map[string]string{
+			"idempotency_key": "must be at most 255 characters",
+		})
+	}
+	return nil
+}
+
+func requestHash(in CreateInput) string {
+	body, _ := json.Marshal(in)
+	sum := sha256.Sum256(body)
+	return hex.EncodeToString(sum[:])
 }
 
 func itemKey(index int) string {

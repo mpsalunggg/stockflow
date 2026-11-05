@@ -42,9 +42,22 @@ func NewRepository(pool *pgxpool.Pool) *Repository {
 	return &Repository{pool: pool}
 }
 
-func (r *Repository) Create(ctx context.Context, in CreateInput) (Order, error) {
+func (r *Repository) Create(ctx context.Context, in CreateInput, idempotencyKey, hash string) (Order, bool, error) {
 	var order Order
+	var replayed bool
 	err := database.WithTx(ctx, r.pool, func(tx pgx.Tx) error {
+		if idempotencyKey != "" {
+			existingID, claimed, err := claimIdempotencyKey(ctx, tx, idempotencyKey, hash)
+			if err != nil {
+				return err
+			}
+			if !claimed {
+				replayed = true
+				order, err = getOrder(ctx, tx, existingID)
+				return err
+			}
+		}
+
 		if err := checkProducts(ctx, tx, in.Items); err != nil {
 			return err
 		}
@@ -82,10 +95,19 @@ func (r *Repository) Create(ctx context.Context, in CreateInput) (Order, error) 
 			}
 		}
 
+		if idempotencyKey != "" {
+			if _, err := tx.Exec(ctx,
+				"UPDATE idempotency_keys SET order_id = $2 WHERE key = $1",
+				idempotencyKey, orderID,
+			); err != nil {
+				return fmt.Errorf("save idempotency key: %w", err)
+			}
+		}
+
 		order, err = getOrder(ctx, tx, orderID)
 		return err
 	})
-	return order, err
+	return order, replayed, err
 }
 
 func (r *Repository) Get(ctx context.Context, id int) (Order, error) {
@@ -193,6 +215,33 @@ func (r *Repository) List(ctx context.Context, params ListParams) ([]Summary, in
 		orders = []Summary{}
 	}
 	return orders, total, nil
+}
+
+func claimIdempotencyKey(ctx context.Context, tx pgx.Tx, key, hash string) (int, bool, error) {
+	tag, err := tx.Exec(ctx,
+		"INSERT INTO idempotency_keys (key, request_hash) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING",
+		key, hash,
+	)
+	if err != nil {
+		return 0, false, fmt.Errorf("claim idempotency key: %w", err)
+	}
+	if tag.RowsAffected() == 1 {
+		return 0, true, nil
+	}
+
+	var storedHash string
+	var orderID *int
+	err = tx.QueryRow(ctx,
+		"SELECT request_hash, order_id FROM idempotency_keys WHERE key = $1",
+		key,
+	).Scan(&storedHash, &orderID)
+	if err != nil {
+		return 0, false, fmt.Errorf("read idempotency key: %w", err)
+	}
+	if storedHash != hash || orderID == nil {
+		return 0, false, idempotencyKeyReused()
+	}
+	return *orderID, false, nil
 }
 
 func checkProducts(ctx context.Context, tx pgx.Tx, items []ItemInput) error {

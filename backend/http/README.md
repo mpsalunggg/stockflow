@@ -19,6 +19,7 @@ Every error uses the same envelope:
 | `PRODUCT_HAS_HISTORY` | 409 | Product has stock movements or order lines and cannot be deleted |
 | `INSUFFICIENT_STOCK` | 409 | Not enough stock; includes `sku` and `available` |
 | `ORDER_ALREADY_CANCELLED` | 409 | Order was cancelled before |
+| `IDEMPOTENCY_KEY_REUSED` | 409 | The `Idempotency-Key` was already used with a different body |
 
 ## Products
 
@@ -50,6 +51,8 @@ curl localhost:8080/api/products/1/movements
 ```
 
 ## Orders
+
+`POST /orders` accepts an optional `Idempotency-Key` header. Sending the same key and body again returns the order that was already created (201, header `Idempotent-Replayed: true`) without taking stock a second time. A request that failed did not store its key, so it can be retried with the same key.
 
 | Method | Path | Response |
 |---|---|---|

@@ -13,6 +13,12 @@ func insufficientStock(sku string, available int) error {
 	})
 }
 
+func idempotencyKeyReused() error {
+	return apperrors.Conflict("IDEMPOTENCY_KEY_REUSED", map[string]any{
+		"message": "this Idempotency-Key was already used with a different request body",
+	})
+}
+
 func alreadyCancelled() error {
 	return apperrors.Conflict("ORDER_ALREADY_CANCELLED", nil)
 }
