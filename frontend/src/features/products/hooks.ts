@@ -1,39 +1,45 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createProduct, deleteProduct, listProducts, updateProduct } from './api'
-import type { ProductForm, ProductListParams } from './schemas'
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { createProduct, deleteProduct, listProducts, updateProduct } from "./api";
+import type { ProductForm, ProductListParams } from "./schemas";
 
 export const productKeys = {
-  all: ['products'] as const,
-  list: (params: ProductListParams) => ['products', params] as const,
-}
+  all: ["products"] as const,
+  list: (params: ProductListParams) => ["products", params] as const,
+};
 
 export function useProducts(params: ProductListParams) {
   return useQuery({
     queryKey: productKeys.list(params),
     queryFn: () => listProducts(params),
     placeholderData: keepPreviousData,
-  })
+  });
 }
 
 function useInvalidateProducts() {
-  const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: productKeys.all })
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: productKeys.all });
 }
 
 export function useCreateProduct() {
-  const onSuccess = useInvalidateProducts()
-  return useMutation({ mutationFn: createProduct, onSuccess })
+  const onSettled = useInvalidateProducts();
+  return useMutation({ mutationFn: createProduct, onSettled });
 }
 
 export function useUpdateProduct() {
-  const onSuccess = useInvalidateProducts()
+  const onSettled = useInvalidateProducts();
   return useMutation({
-    mutationFn: ({ id, input }: { id: number; input: ProductForm }) => updateProduct(id, input),
-    onSuccess,
-  })
+    mutationFn: ({ id, input }: { id: number; input: ProductForm }) =>
+      updateProduct(id, input),
+    onSettled,
+  });
 }
 
 export function useDeleteProduct() {
-  const onSuccess = useInvalidateProducts()
-  return useMutation({ mutationFn: deleteProduct, onSuccess })
+  const onSettled = useInvalidateProducts();
+  return useMutation({ mutationFn: deleteProduct, onSettled });
 }
