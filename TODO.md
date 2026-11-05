@@ -1,0 +1,24 @@
+# TODO
+
+- [x] Docker compose: postgres, backend, frontend; migrations and seed on startup
+- [x] Seed: 14 products, 2 orders
+- [x] Products API: list with search and paging, get, create, update, delete (409 `PRODUCT_HAS_HISTORY`)
+- [x] Stock API: adjust in/out with guarded UPDATE, movement history
+- [x] Orders API: create (validate first, one transaction, 409 `INSUFFICIENT_STOCK`), get, cancel, list
+- [x] Concurrency checked manually: no negative stock, no deadlocks, cancel restores stock once
+- [x] Products page: table, search, paging, add/edit/delete, loading/empty/error states
+- [x] Adjust stock dialog with the 409 shown in the UI
+- [x] Stock history page
+- [x] Orders: list, create order (409 marks the failing row), detail with cancel
+- [x] API contract and `.http` files in `backend/http`
+- [x] README with run steps
+- [ ] Go tests: overdraw writes nothing, happy path, `go test -race` concurrency
+- [ ] Vitest for schemas and formatting helpers
+- [ ] Products page: status column
+- [ ] Products page: All / Active / Inactive / Low stock filter
+- [ ] Summary cards: total products, active products, stock value, low stock count
+- [ ] README: design decisions, improvements, hours spent
+- [ ] Remove unused types `ProductList`, `OrderList`, `AdjustResult`
+- [ ] Set `"strict": true` explicitly in `tsconfig.app.json`
+- [ ] Bonus: `Idempotency-Key` on `POST /api/orders`
+- [ ] Bonus: daily sales report
