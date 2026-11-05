@@ -1,0 +1,92 @@
+@baseUrl = http://localhost:8080/api
+
+### List orders
+GET {{baseUrl}}/orders
+
+### List orders, search customer and filter status
+GET {{baseUrl}}/orders?search=sari&status=CREATED&page=1&limit=5
+
+### List orders, invalid status (400)
+GET {{baseUrl}}/orders?status=PAID
+
+### Create order (201)
+# @name createOrder
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customer": "Toko Maju Jaya",
+  "items": [
+    { "sku": "GLA-PSR-1KG", "qty": 2 },
+    { "sku": "TEH-CLP-25", "qty": 3 }
+  ]
+}
+
+### Create order, insufficient stock (409 INSUFFICIENT_STOCK)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customer": "Toko Maju Jaya",
+  "items": [
+    { "sku": "GLA-PSR-1KG", "qty": 1 },
+    { "sku": "TPG-TRG-1KG", "qty": 999999 }
+  ]
+}
+
+### Create order, empty items (400)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customer": "Toko Maju Jaya",
+  "items": []
+}
+
+### Create order, duplicate sku and qty 0 (400)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customer": " ",
+  "items": [
+    { "sku": "GLA-PSR-1KG", "qty": 1 },
+    { "sku": "GLA-PSR-1KG", "qty": 0 }
+  ]
+}
+
+### Create order, unknown and inactive sku (400)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customer": "Toko Maju Jaya",
+  "items": [
+    { "sku": "NOPE-404", "qty": 1 },
+    { "sku": "SRP-MPL-500", "qty": 1 }
+  ]
+}
+
+### Create order, client price is not allowed (400)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customer": "Toko Maju Jaya",
+  "items": [{ "sku": "GLA-PSR-1KG", "qty": 1, "unit_price": 1 }]
+}
+
+### Get order (200)
+GET {{baseUrl}}/orders/{{createOrder.response.body.$.id}}
+
+### Get order, not found (404)
+GET {{baseUrl}}/orders/9999
+
+### Cancel order (200)
+POST {{baseUrl}}/orders/{{createOrder.response.body.$.id}}/cancel
+
+### Cancel order again (409 ORDER_ALREADY_CANCELLED)
+POST {{baseUrl}}/orders/{{createOrder.response.body.$.id}}/cancel
+
+### Cancel order, not found (404)
+POST {{baseUrl}}/orders/9999/cancel

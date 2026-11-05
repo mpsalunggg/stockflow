@@ -7,17 +7,26 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
-import { useProducts } from "@/features/products/hooks";
-import type { Product } from "@/features/products/schemas";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { formatNumber } from "@/lib/format";
+import { useProducts } from "../hooks";
+import type { Product } from "../schemas";
 
 type ProductPickerProps = {
   id?: string;
   value?: Product;
+  invalid?: boolean;
+  "aria-label"?: string;
   onChange: (product: Product) => void;
 };
 
-export function ProductPicker({ id, value, onChange }: ProductPickerProps) {
+export function ProductPicker({
+  id,
+  value,
+  invalid,
+  "aria-label": ariaLabel,
+  onChange,
+}: ProductPickerProps) {
   const [query, setQuery] = useState("");
   const search = useDebouncedValue(query.trim());
   const isSelectedLabel = value !== undefined && search === value.name;
@@ -37,16 +46,24 @@ export function ProductPicker({ id, value, onChange }: ProductPickerProps) {
       isItemEqualToValue={(a, b) => a.id === b.id}
       filter={null}
     >
-      <ComboboxInput id={id} placeholder="Search by SKU or product name..." />
+      <ComboboxInput
+        id={id}
+        aria-label={ariaLabel}
+        aria-invalid={invalid}
+        placeholder="Search by SKU or product name..."
+      />
       <ComboboxContent>
         <ComboboxEmpty>{isPending ? "Loading products..." : "No products found."}</ComboboxEmpty>
         <ComboboxList>
           {(product: Product) => (
             <ComboboxItem key={product.id} value={product}>
-              <div className="flex min-w-0 flex-col">
+              <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate">{product.name}</span>
                 <span className="font-mono text-xs text-muted-foreground">{product.sku}</span>
               </div>
+              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                {formatNumber(product.stock)} in stock
+              </span>
             </ComboboxItem>
           )}
         </ComboboxList>

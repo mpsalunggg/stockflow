@@ -19,7 +19,7 @@ import { useTableParams } from "@/hooks/use-table-params";
 import { formatNumber, formatRupiah, timeAgo } from "@/lib/format";
 import { AdjustStockDialog } from "../components/adjust-stock-dialog";
 import { MovementsTable } from "../components/movements-table";
-import { ProductPicker } from "../components/product-picker";
+import { ProductPicker } from "@/features/products/components/product-picker";
 import { useMovements } from "../hooks";
 
 function Stat({ label, children }: { label: string; children: ReactNode }) {

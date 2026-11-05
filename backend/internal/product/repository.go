@@ -7,6 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mpsalunggg/stockflow/backend/internal/database"
 )
 
 const selectProduct = `
@@ -31,7 +32,7 @@ func (r *Repository) List(ctx context.Context, params ListParams) ([]Product, in
 	args := []any{}
 	if params.Search != "" {
 		where = " WHERE p.sku ILIKE $1 OR p.name ILIKE $1"
-		args = append(args, likePattern(params.Search))
+		args = append(args, database.LikePattern(params.Search))
 	}
 
 	var total int
@@ -41,7 +42,7 @@ func (r *Repository) List(ctx context.Context, params ListParams) ([]Product, in
 
 	n := len(args)
 	query := fmt.Sprintf("%s%s ORDER BY p.id LIMIT $%d OFFSET $%d", selectProduct, where, n+1, n+2)
-	rows, err := r.pool.Query(ctx, query, append(args, params.Limit, params.offset())...)
+	rows, err := r.pool.Query(ctx, query, append(args, params.Limit, params.Offset())...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list products: %w", err)
 	}

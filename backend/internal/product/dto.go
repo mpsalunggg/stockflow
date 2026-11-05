@@ -2,15 +2,10 @@ package product
 
 import (
 	"net/url"
-	"strconv"
 	"strings"
 
 	apperrors "github.com/mpsalunggg/stockflow/backend/internal/shared/errors"
-)
-
-const (
-	defaultLimit = 20
-	maxLimit     = 100
+	"github.com/mpsalunggg/stockflow/backend/internal/shared/request"
 )
 
 type ProductInput struct {
@@ -49,12 +44,7 @@ func (in ProductInput) validate(requireIsActive bool) error {
 
 type ListParams struct {
 	Search string
-	Page   int
-	Limit  int
-}
-
-func (p ListParams) offset() int {
-	return (p.Page - 1) * p.Limit
+	request.Pagination
 }
 
 type ListResult struct {
@@ -65,37 +55,13 @@ type ListResult struct {
 }
 
 func parseListParams(q url.Values) (ListParams, error) {
-	params := ListParams{
-		Search: strings.TrimSpace(q.Get("search")),
-		Page:   1,
-		Limit:  defaultLimit,
-	}
 	details := map[string]string{}
-
-	if v := q.Get("page"); v != "" {
-		n, err := strconv.Atoi(v)
-		if err != nil || n < 1 {
-			details["page"] = "must be a positive integer"
-		} else {
-			params.Page = n
-		}
+	params := ListParams{
+		Search:     strings.TrimSpace(q.Get("search")),
+		Pagination: request.ParsePagination(q, details),
 	}
-	if v := q.Get("limit"); v != "" {
-		n, err := strconv.Atoi(v)
-		if err != nil || n < 1 || n > maxLimit {
-			details["limit"] = "must be an integer between 1 and " + strconv.Itoa(maxLimit)
-		} else {
-			params.Limit = n
-		}
-	}
-
 	if len(details) > 0 {
 		return ListParams{}, apperrors.Validation(details)
 	}
 	return params, nil
-}
-
-func likePattern(search string) string {
-	r := strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
-	return "%" + r.Replace(search) + "%"
 }
